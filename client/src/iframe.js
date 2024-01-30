@@ -36,18 +36,13 @@ function Iframe() {
 
     fetchData();
   }, []);
-
-  function formatDate(dateString) {
-    if (dateString.includes("-")) {
-      // ISO string
-      const date = new Date(dateString);
-      return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
-    } else {
-      // "day/month/year" string
-      const [day, month, year] = dateString.split("/");
-      return `${year}/${month}/${day}`;
-    }
-  }
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}/${String(date.getDate()).padStart(2, "0")}`;
+  };
 
   useEffect(() => {
     if (selectedName) {
@@ -56,7 +51,7 @@ function Iframe() {
         .items.map((item) => {
           const date = item.acf?.event_date
             ? formatDate(item.acf.event_date)
-            : formatDate(new Date(item.date).toLocaleDateString());
+            : formatDate(new Date(item.date).toISOString());
           return {
             name: selectedName,
             title:
@@ -77,9 +72,9 @@ function Iframe() {
           item.items.map((subItem) => {
             const date = subItem.acf?.event_date
               ? formatDate(subItem.acf.event_date)
-              : formatDate(subItem.date);
+              : formatDate(new Date(subItem.date).toISOString());
             return {
-              name: item.name, // Add this line
+              name: item.name,
               title:
                 typeof subItem.title === "string"
                   ? he.decode(subItem.title)
@@ -314,7 +309,9 @@ function Iframe() {
                           }}
                         >
                           <EventIcon sx={{ mr: 1 }} />
-                          <Typography variant="body1">{item.date}</Typography>
+                          <Typography variant="body1">
+                            {formatCardDate(item.date)}
+                          </Typography>
                         </Box>
                         <Box
                           sx={{
