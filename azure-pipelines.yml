@@ -62,3 +62,13 @@ steps:
       includeRootFolder: false
       archiveType: "zip"
       archiveFile: "$(Build.ArtifactStagingDirectory)/package.zip"
+
+- task: AzureRmWebAppDeployment@4
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'SCG_Prod(c3f73cec-781d-4c1e-b28f-75075e5ecd71)'
+    appType: 'webAppLinux'
+    WebAppName: 'vnsw-upcomingevent'
+    packageForLinux: '$(Build.ArtifactStagingDirectory)/package.zip'
+    RuntimeStack: 'NODE|18-lts'
+    StartupCommand: 'cd server && node server.js'
