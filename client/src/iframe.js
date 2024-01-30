@@ -56,8 +56,6 @@ function Iframe() {
       const filtered = data
         ?.find((item) => item.name === selectedName)
         .items.map((item) => {
-          console.log("item.acf.event_date:", item.acf?.event_date); // Add logging
-          console.log("item.date:", item.date); // Add logging
           const date = item.acf?.event_date
             ? formatDate(item.acf.event_date)
             : formatDate(new Date(item.date).toISOString());
@@ -73,8 +71,16 @@ function Iframe() {
               item.landscapeImage?.url ||
               item.yoast_head_json?.og_image[0]?.url,
           };
+        })
+        .filter((item) => {
+          const currentDate = new Date();
+          const itemDate = new Date(item.date);
+          return itemDate >= currentDate;
         });
-      setFilteredData(filtered);
+      if (filtered) {
+        filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+        setFilteredData(filtered);
+      }
     } else {
       const allItems = data
         ?.flatMap((item) =>
