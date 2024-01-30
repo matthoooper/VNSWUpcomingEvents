@@ -24,27 +24,6 @@ function Iframe() {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
 
   useEffect(() => {
-    function handleScroll() {
-      if (scrollContainerRef.current) {
-        setShowScrollLeft(scrollContainerRef.current.scrollLeft > 0);
-      }
-    }
-
-    const scrollContainer = scrollContainerRef.current;
-    if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll);
-      // Check the scroll position immediately
-      handleScroll();
-    }
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [filteredData]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get("/api/eventdata");
@@ -157,6 +136,27 @@ function Iframe() {
       return `${baseSize}px`;
     }
   }
+
+  useEffect(() => {
+    function handleScroll() {
+      if (scrollContainerRef.current) {
+        setShowScrollLeft(scrollContainerRef.current.scrollLeft > 0);
+      }
+    }
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+      // Check the scroll position immediately
+      handleScroll();
+    }
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [filteredData]);
 
   return (
     <Container>
@@ -314,9 +314,7 @@ function Iframe() {
                           }}
                         >
                           <EventIcon sx={{ mr: 1 }} />
-                          <Typography variant="body1">
-                            {formatCardDate(item.date)}
-                          </Typography>
+                          <Typography variant="body1">{item.date}</Typography>
                         </Box>
                         <Box
                           sx={{
