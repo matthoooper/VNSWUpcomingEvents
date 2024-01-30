@@ -36,8 +36,15 @@ function Iframe() {
 
     fetchData();
   }, []);
+
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    let date;
+    if (dateString.includes("/")) {
+      const [day, month, year] = dateString.split("/");
+      date = new Date(year, month - 1, day);
+    } else {
+      date = new Date(dateString);
+    }
     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
       2,
       "0"
@@ -49,6 +56,8 @@ function Iframe() {
       const filtered = data
         ?.find((item) => item.name === selectedName)
         .items.map((item) => {
+          console.log("item.acf.event_date:", item.acf?.event_date); // Add logging
+          console.log("item.date:", item.date); // Add logging
           const date = item.acf?.event_date
             ? formatDate(item.acf.event_date)
             : formatDate(new Date(item.date).toISOString());
@@ -309,9 +318,7 @@ function Iframe() {
                           }}
                         >
                           <EventIcon sx={{ mr: 1 }} />
-                          <Typography variant="body1">
-                            {formatCardDate(item.date)}
-                          </Typography>
+                          <Typography variant="body1">{item.date}</Typography>
                         </Box>
                         <Box
                           sx={{
