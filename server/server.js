@@ -4,6 +4,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 
+app.use((req, res, next) => {
+  res.removeHeader("X-Frame-Options");
+  next();
+});
+
 async function fetchJSON({ url, headers = {}, name }) {
   const response = await axios.get(url, { headers });
   return { name, data: response.data };

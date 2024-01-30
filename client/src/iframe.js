@@ -128,9 +128,9 @@ function Iframe() {
 
   return (
     <Container>
-      <Card>
+      <Card sx={{ minHeight: "378px", height: "100%" }}>
         {data ? (
-          <div>
+          <div style={{ height: "100%" }}>
             <div>
               <Button
                 variant="outlined"
@@ -255,7 +255,17 @@ function Iframe() {
             </Box>
           </div>
         ) : (
-          <CircularProgress />
+          <Box
+            sx={{
+              display: "flex",
+              height: "100%",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
         )}
       </Card>
     </Container>
