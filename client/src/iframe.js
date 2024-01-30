@@ -318,7 +318,9 @@ function Iframe() {
                           }}
                         >
                           <EventIcon sx={{ mr: 1 }} />
-                          <Typography variant="body1">{item.date}</Typography>
+                          <Typography variant="body1">
+                            {formatCardDate(item.date)}
+                          </Typography>
                         </Box>
                         <Box
                           sx={{
