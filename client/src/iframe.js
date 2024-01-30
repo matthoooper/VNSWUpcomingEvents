@@ -255,6 +255,7 @@ function Iframe() {
                     <Card
                       key={index}
                       sx={{
+                        backgroundColor: "#f7f7f7",
                         flex: "0 0 auto",
                         mr: 1,
                       }}
