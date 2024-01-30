@@ -9,14 +9,40 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import he from "he";
-import { useState, useEffect } from "react";
 import StadiumIcon from "@mui/icons-material/Stadium";
 import EventIcon from "@mui/icons-material/Event";
+import { useRef, useState, useEffect } from "react";
+import { IconButton } from "@mui/material";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 
 function Iframe() {
   const [data, setData] = useState(null);
   const [filteredData, setFilteredData] = useState(null);
   const [selectedName, setSelectedName] = useState(null);
+  const scrollContainerRef = useRef(null);
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (scrollContainerRef.current) {
+        setShowScrollLeft(scrollContainerRef.current.scrollLeft > 0);
+      }
+    }
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+      // Check the scroll position immediately
+      handleScroll();
+    }
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [filteredData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,146 +154,207 @@ function Iframe() {
 
   return (
     <Container>
-      <Card sx={{ minHeight: "378px", height: "100%" }}>
-        {data ? (
-          <div style={{ height: "100%" }}>
-            <div>
-              <Button
-                variant="outlined"
-                sx={{
-                  marginRight: 2,
-                  bgcolor: selectedName === null ? "#dddddd" : "inherit",
-                }}
-                onClick={handleAllButtonClick}
-              >
-                All
-              </Button>
-              {data.map((item, index) => (
+      <Box
+        sx={{
+          position: "relative", // Add this line
+        }}
+      >
+        <IconButton
+          onClick={() => {
+            console.log("Button clicked");
+            if (scrollContainerRef.current) {
+              console.log("Scroll container found", scrollContainerRef.current);
+              scrollContainerRef.current.scrollTo({
+                left: scrollContainerRef.current.scrollLeft + 300,
+                behavior: "smooth",
+              });
+            } else {
+              console.log("Scroll container not found");
+            }
+          }}
+          sx={{
+            position: "absolute", // Add this line
+            top: "50%", // Add this line
+            right: "-50px", // Add this line
+            transform: "translateY(-50%)", // Add this line
+            backgroundColor: "#8080803d",
+          }}
+        >
+          <ArrowRightIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => {
+            console.log("Button clicked");
+            if (scrollContainerRef.current) {
+              console.log("Scroll container found", scrollContainerRef.current);
+              scrollContainerRef.current.scrollTo({
+                left: scrollContainerRef.current.scrollLeft - 300,
+                behavior: "smooth",
+              });
+            } else {
+              console.log("Scroll container not found");
+            }
+          }}
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "-50px",
+            transform: "translateY(-50%)",
+            backgroundColor: "#8080803d",
+            display: `${showScrollLeft ? "inline-flex" : "none"} !important`, // Add !important
+          }}
+        >
+          <ArrowLeftIcon />
+        </IconButton>
+        <Box sx={{ minHeight: "378px", height: "100%" }}>
+          {data ? (
+            <div style={{ height: "100%" }}>
+              <div>
                 <Button
-                  variant="outlined"
                   sx={{
+                    color: "rgb(0, 91, 198)",
+                    fontWeight: "600",
                     marginRight: 2,
-                    bgcolor: selectedName === item.name ? "#dddddd" : "inherit",
+                    bgcolor: selectedName === null ? "#dddddd" : "inherit",
                   }}
-                  key={index}
-                  onClick={() => handleButtonClick(item.name)}
+                  onClick={handleAllButtonClick}
                 >
-                  {item.name}
+                  All
                 </Button>
-              ))}
+                {data.map((item, index) => (
+                  <Button
+                    sx={{
+                      color: "rgb(0, 91, 198)",
+                      fontWeight: "600",
+                      marginRight: 2,
+                      bgcolor:
+                        selectedName === item.name ? "#dddddd" : "inherit",
+                    }}
+                    key={index}
+                    onClick={() => handleButtonClick(item.name)}
+                  >
+                    {item.name}
+                  </Button>
+                ))}
+              </div>
+              <Box
+                ref={scrollContainerRef}
+                sx={{
+                  display: "flex",
+                  overflowX: "auto", // Ensure this is set to 'scroll' or 'auto'
+                  p: 1,
+                  whiteSpace: "nowrap",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
+              >
+                {filteredData &&
+                  filteredData.map((item, index) => (
+                    <Card
+                      key={index}
+                      sx={{
+                        flex: "0 0 auto",
+                        mr: 1,
+                      }}
+                    >
+                      <CardContent
+                        sx={{
+                          maxWidth: "300px",
+                          maxHeight: "500px",
+                          overflow: "auto",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "170px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <img
+                            src={item.image || `/images/${item.name}.jpeg`}
+                            alt={item.title}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              backgroundColor: "#d7d6d6",
+                              borderRadius: "5px",
+                            }}
+                          />
+                        </div>
+                        <Typography
+                          variant="h5"
+                          component="div"
+                          sx={{
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            fontSize: getFontSize(item.title),
+                            mt: 1,
+                          }}
+                        >
+                          {item.title}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            mt: 1,
+                          }}
+                        >
+                          <EventIcon sx={{ mr: 1 }} />
+                          <Typography variant="body1">
+                            {formatCardDate(item.date)}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            mt: 1,
+                          }}
+                        >
+                          <StadiumIcon sx={{ mr: 1 }} />
+                          <Typography variant="body1">
+                            {item.name === "Accor"
+                              ? "Accor Stadium"
+                              : item.name === "Commbank"
+                              ? "Commbank Stadium"
+                              : item.name === "SCG"
+                              ? "Sydney Cricket Ground"
+                              : item.name === "SFS"
+                              ? "Allianz Stadium"
+                              : item.name}
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </Box>
             </div>
+          ) : (
             <Box
               sx={{
                 display: "flex",
-                overflowX: "auto",
-                p: 1,
-                whiteSpace: "nowrap",
+                height: "100%",
+                width: "100%",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {filteredData &&
-                filteredData.map((item, index) => (
-                  <Card
-                    key={index}
-                    sx={{
-                      flex: "0 0 auto",
-                      mr: 1,
-                    }}
-                  >
-                    <CardContent
-                      sx={{
-                        maxWidth: "300px",
-                        maxHeight: "500px",
-                        overflow: "auto",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "170px",
-                          overflow: "hidden",
-                        }}
-                      >
-                        <img
-                          src={item.image || `/images/${item.name}.jpeg`}
-                          alt={item.title}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                            backgroundColor: "#d7d6d6",
-                            borderRadius: "5px",
-                          }}
-                        />
-                      </div>
-                      <Typography
-                        variant="h5"
-                        component="div"
-                        sx={{
-                          fontWeight: 600,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          fontSize: getFontSize(item.title),
-                          mt: 1,
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          mt: 1,
-                        }}
-                      >
-                        <EventIcon sx={{ mr: 1 }} />
-                        <Typography variant="body1">
-                          {formatCardDate(item.date)}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          mt: 1,
-                        }}
-                      >
-                        <StadiumIcon sx={{ mr: 1 }} />
-                        <Typography variant="body1">
-                          {item.name === "Accor"
-                            ? "Accor Stadium"
-                            : item.name === "Commbank"
-                            ? "Commbank Stadium"
-                            : item.name === "SCG"
-                            ? "Sydney Cricket Ground"
-                            : item.name === "SFS"
-                            ? "Allianz Stadium"
-                            : item.name}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
+              <CircularProgress />
             </Box>
-          </div>
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              height: "100%",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
-      </Card>
+          )}
+        </Box>
+      </Box>
     </Container>
   );
 }
