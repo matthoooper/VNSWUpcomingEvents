@@ -165,7 +165,7 @@ function Iframe() {
             if (scrollContainerRef.current) {
               console.log("Scroll container found", scrollContainerRef.current);
               scrollContainerRef.current.scrollTo({
-                left: scrollContainerRef.current.scrollLeft + 300,
+                left: scrollContainerRef.current.scrollLeft + 600,
                 behavior: "smooth",
               });
             } else {
@@ -175,9 +175,9 @@ function Iframe() {
           sx={{
             position: "absolute", // Add this line
             top: "50%", // Add this line
-            right: "-50px", // Add this line
+            right: "-20px", // Add this line
             transform: "translateY(-50%)", // Add this line
-            backgroundColor: "#8080803d",
+            backgroundColor: "#00cd7e",
           }}
         >
           <ArrowRightIcon />
@@ -188,7 +188,7 @@ function Iframe() {
             if (scrollContainerRef.current) {
               console.log("Scroll container found", scrollContainerRef.current);
               scrollContainerRef.current.scrollTo({
-                left: scrollContainerRef.current.scrollLeft - 300,
+                left: scrollContainerRef.current.scrollLeft - 600,
                 behavior: "smooth",
               });
             } else {
@@ -198,9 +198,9 @@ function Iframe() {
           sx={{
             position: "absolute",
             top: "50%",
-            left: "-50px",
+            left: "-20px",
             transform: "translateY(-50%)",
-            backgroundColor: "#8080803d",
+            backgroundColor: "#00cd7e",
             display: `${showScrollLeft ? "inline-flex" : "none"} !important`, // Add !important
           }}
         >
