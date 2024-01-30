@@ -14,7 +14,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {query.get("component") === "iframe" ? (
+        {query.get("UUID") === "2wdmeeeuopj2kdtg5629" ? (
           <Iframe />
         ) : (
           <div>
