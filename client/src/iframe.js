@@ -161,9 +161,7 @@ function Iframe() {
       >
         <IconButton
           onClick={() => {
-            console.log("Button clicked");
             if (scrollContainerRef.current) {
-              console.log("Scroll container found", scrollContainerRef.current);
               scrollContainerRef.current.scrollTo({
                 left: scrollContainerRef.current.scrollLeft + 600,
                 behavior: "smooth",
