@@ -127,10 +127,16 @@ function Iframe() {
 
   const handleButtonClick = (name) => {
     setSelectedName(name);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
   };
 
   const handleAllButtonClick = () => {
     setSelectedName(null);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
   };
 
   function formatCardDate(dateString) {
