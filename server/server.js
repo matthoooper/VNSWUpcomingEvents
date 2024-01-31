@@ -17,18 +17,17 @@ async function fetchJSON({ url, headers = {}, name }) {
 function normalizeData({ name, data }) {
   let items = data.items ? data.items : data;
 
-  // If the name is 'Commbank' or 'Accor', sort the items by event_date
+  // If the name is 'Commbank' or 'Accor', sort the items by startDate
   if (name === "Commbank" || name === "Accor") {
     items = items.sort((a, b) => {
-      const dateA = a.acf.event_date.split("/").reverse().join("-");
-      const dateB = b.acf.event_date.split("/").reverse().join("-");
-      return new Date(dateA) - new Date(dateB);
+      const dateA = new Date(a.startDate);
+      const dateB = new Date(b.startDate);
+      return dateA - dateB;
     });
   }
 
   return { name, items };
 }
-
 async function fetchMultipleJSONs(jsonUrls) {
   const promises = jsonUrls.map(fetchJSON);
   const results = await Promise.all(promises);
@@ -39,11 +38,11 @@ app.get("/api/eventdata", async (req, res) => {
   const jsonUrls = [
     {
       name: "Accor",
-      url: "https://accorstadium.com.au/wp-json/wp/v2/events?per_page=100&orderby=id&order=asc",
+      url: "https://vlapi.nsw.venueslive.com.au/event?IncludePastEvents=false&VenueCode=STDAUS",
     },
     {
       name: "Commbank",
-      url: "https://commbankstadium.com.au/wp-json/wp/v2/events?per_page=100&orderby=id&order=asc",
+      url: "https://vlapi.nsw.venueslive.com.au/event?IncludePastEvents=false&VenueCode=WSTSYD",
     },
     {
       name: "SFS",

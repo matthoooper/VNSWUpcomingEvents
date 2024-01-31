@@ -16,6 +16,8 @@ import { IconButton } from "@mui/material";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 
+import AccessTime from "@mui/icons-material/AccessTime";
+
 function Iframe() {
   const [data, setData] = useState(null);
   const [filteredData, setFilteredData] = useState(null);
@@ -51,14 +53,40 @@ function Iframe() {
     )}/${String(date.getDate()).padStart(2, "0")}`;
   };
 
+  function convertUTCtoAEST(dateString) {
+    const date = new Date(dateString);
+    const options = {
+      timeZone: "Australia/Sydney",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    };
+    return date.toLocaleString("en-AU", options);
+  }
+
+  const extractUTCTime = (isoString) => {
+    const date = new Date(isoString);
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
   useEffect(() => {
     if (selectedName) {
       const filtered = data
         ?.find((item) => item.name === selectedName)
         .items.map((item) => {
-          const date = item.acf?.event_date
-            ? formatDate(item.acf.event_date)
+          console.log(item.timings);
+          const date = item.startDate
+            ? formatDate(item.startDate)
             : formatDate(new Date(item.date).toISOString());
+          const startTimeAEST = convertUTCtoAEST(item.startTime);
+          const extractedTime = item.timings?.[0]?.time
+            ? extractUTCTime(item.timings?.[0]?.time)
+            : null;
+          const startTime = extractedTime || startTimeAEST;
           return {
             name: selectedName,
             title:
@@ -67,9 +95,8 @@ function Iframe() {
                 : he.decode(item.title?.rendered) || "No title available",
             date,
             time: typeof date === "string" ? "" : date.toLocaleTimeString(),
-            image:
-              item.landscapeImage?.url ||
-              item.yoast_head_json?.og_image[0]?.url,
+            image: item.landscapeImage?.url || item.listingImageUrl,
+            startTime,
           };
         })
         .filter((item) => {
@@ -85,9 +112,14 @@ function Iframe() {
       const allItems = data
         ?.flatMap((item) =>
           item.items.map((subItem) => {
-            const date = subItem.acf?.event_date
-              ? formatDate(subItem.acf.event_date)
+            const date = subItem.startDate
+              ? formatDate(subItem.startDate)
               : formatDate(new Date(subItem.date).toISOString());
+            const startTimeAEST = convertUTCtoAEST(subItem.startTime);
+            const extractedTime = subItem.timings?.[0]?.time
+              ? extractUTCTime(subItem.timings?.[0]?.time)
+              : null;
+            const startTime = extractedTime || startTimeAEST;
             return {
               name: item.name,
               title:
@@ -96,9 +128,8 @@ function Iframe() {
                   : he.decode(subItem.title?.rendered) || "No title available",
               date,
               time: typeof date === "string" ? "" : date.toLocaleTimeString(),
-              image:
-                subItem.landscapeImage?.url ||
-                subItem.yoast_head_json?.og_image[0]?.url,
+              image: subItem.landscapeImage?.url || subItem.listingImageUrl,
+              startTime,
             };
           })
         )
@@ -167,6 +198,13 @@ function Iframe() {
       }
     };
   }, [filteredData]);
+  const convertTo12HourFormat = (time) => {
+    const [hour, minute] = time.split(":");
+    const hourIn24HourFormat = parseInt(hour, 10);
+    const hourIn12HourFormat = ((hourIn24HourFormat + 11) % 12) + 1;
+    const period = hourIn24HourFormat >= 12 ? "PM" : "AM";
+    return `${hourIn12HourFormat}:${minute} ${period}`;
+  };
 
   return (
     <Container>
@@ -328,6 +366,7 @@ function Iframe() {
                             {formatCardDate(item.date)}
                           </Typography>
                         </Box>
+
                         <Box
                           sx={{
                             display: "flex",
@@ -349,6 +388,27 @@ function Iframe() {
                               ? "Allianz Stadium"
                               : item.name}
                           </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            mt: 1,
+                          }}
+                        >
+                          {item.startTime !== "Invalid Date" ? (
+                            <>
+                              <AccessTime sx={{ mr: 1 }} />
+                              <Typography variant="body1">
+                                {convertTo12HourFormat(item.startTime)}
+                              </Typography>
+                            </>
+                          ) : (
+                            <Typography variant="body1">&nbsp;</Typography>
+                          )}
                         </Box>
                       </CardContent>
                     </Card>
