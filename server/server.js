@@ -38,11 +38,13 @@ app.get("/api/eventdata", async (req, res) => {
   const jsonUrls = [
     {
       name: "Accor",
-      url: "https://vlapi.nsw.venueslive.com.au/event?IncludePastEvents=false&VenueCode=STDAUS",
+      url: "https://cms-service.onrewind.tv/stadium-mobile/kentico/events?limit=30",
+      headers: { "x-account-key": "ryCSDIO96" },
     },
     {
       name: "Commbank",
-      url: "https://vlapi.nsw.venueslive.com.au/event?IncludePastEvents=false&VenueCode=WSTSYD",
+      url: "https://cms-service.onrewind.tv/stadium-mobile/kentico/events?limit=30",
+      headers: { "x-account-key": "B13TwU_cT" },
     },
     {
       name: "SFS",

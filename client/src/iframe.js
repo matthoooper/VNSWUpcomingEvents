@@ -1,6 +1,6 @@
 import {
   Container,
-  CircularProgress,
+  Skeleton,
   Button,
   Card,
   Typography,
@@ -8,7 +8,6 @@ import {
   Box,
 } from "@mui/material";
 import axios from "axios";
-import he from "he";
 import StadiumIcon from "@mui/icons-material/Stadium";
 import EventIcon from "@mui/icons-material/Event";
 import { useRef, useState, useEffect } from "react";
@@ -30,6 +29,7 @@ function Iframe() {
       try {
         const response = await axios.get("/api/eventdata");
         setData(response.data);
+        console.log("Data:", response.data);
         setFilteredData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -39,111 +39,39 @@ function Iframe() {
     fetchData();
   }, []);
 
-  const formatDate = (dateString) => {
-    let date;
-    if (dateString.includes("/")) {
-      const [day, month, year] = dateString.split("/");
-      date = new Date(year, month - 1, day);
-    } else {
-      date = new Date(dateString);
-    }
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}/${String(date.getDate()).padStart(2, "0")}`;
-  };
-
-  function convertUTCtoAEST(dateString) {
-    const date = new Date(dateString);
-    const options = {
-      timeZone: "Australia/Sydney",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    };
-    return date.toLocaleString("en-AU", options);
-  }
-
-  const extractUTCTime = (isoString) => {
-    const date = new Date(isoString);
-    const hours = String(date.getUTCHours()).padStart(2, "0");
-    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
-  };
-
   useEffect(() => {
-    if (selectedName) {
-      const filtered = data
-        ?.find((item) => item.name === selectedName)
-        .items.map((item) => {
-          console.log(item.timings);
-          const date = item.startDate
-            ? formatDate(item.startDate)
-            : formatDate(new Date(item.date).toISOString());
-          const startTimeAEST = convertUTCtoAEST(item.startTime);
-          const extractedTime = item.timings?.[0]?.time
-            ? extractUTCTime(item.timings?.[0]?.time)
-            : null;
-          const startTime = extractedTime || startTimeAEST;
-          return {
-            name: selectedName,
-            title:
-              typeof item.title === "string"
-                ? he.decode(item.title)
-                : he.decode(item.title?.rendered) || "No title available",
-            date,
-            time: typeof date === "string" ? "" : date.toLocaleTimeString(),
-            image: item.landscapeImage?.url || item.listingImageUrl,
-            startTime,
-          };
-        })
-        .filter((item) => {
-          const currentDate = new Date();
-          const itemDate = new Date(item.date);
-          return itemDate >= currentDate;
-        });
-      if (filtered) {
-        filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-        setFilteredData(filtered);
-      }
-    } else {
-      const allItems = data
-        ?.flatMap((item) =>
-          item.items.map((subItem) => {
-            const date = subItem.startDate
-              ? formatDate(subItem.startDate)
-              : formatDate(new Date(subItem.date).toISOString());
-            const startTimeAEST = convertUTCtoAEST(subItem.startTime);
-            const extractedTime = subItem.timings?.[0]?.time
-              ? extractUTCTime(subItem.timings?.[0]?.time)
-              : null;
-            const startTime = extractedTime || startTimeAEST;
-            return {
-              name: item.name,
-              title:
-                typeof subItem.title === "string"
-                  ? he.decode(subItem.title)
-                  : he.decode(subItem.title?.rendered) || "No title available",
-              date,
-              time: typeof date === "string" ? "" : date.toLocaleTimeString(),
-              image: subItem.landscapeImage?.url || subItem.listingImageUrl,
-              startTime,
-            };
-          })
+    const allItems = data
+      ? data.flatMap((item) =>
+          item.items.map((subItem) => ({
+            name: item.name,
+            startDate: subItem.date,
+            startTime: subItem.startTime,
+            timings: null, // Add timings data here if available
+            title: subItem.title,
+            landscapeImage: subItem.landscapeImage,
+          }))
         )
-        .filter((item) => {
-          const currentDate = new Date();
-          const itemDate = new Date(item.date);
-          return itemDate >= currentDate;
-        });
-      if (allItems) {
-        allItems.sort((a, b) => new Date(a.date) - new Date(b.date));
-        setFilteredData(allItems);
+      : [];
+
+    const filteredItems = allItems.filter((item) => {
+      const currentDate = new Date();
+      const itemDate = new Date(item.startDate);
+      return itemDate >= currentDate;
+    });
+
+    if (filteredItems) {
+      filteredItems.sort(
+        (a, b) => new Date(a.startDate) - new Date(b.startDate)
+      );
+      if (selectedName) {
+        setFilteredData(
+          filteredItems.filter((item) => item.name === selectedName)
+        );
+      } else {
+        setFilteredData(filteredItems);
       }
     }
-  }, [selectedName, data]);
+  }, [data, selectedName]);
 
   const handleButtonClick = (name) => {
     setSelectedName(name);
@@ -160,8 +88,10 @@ function Iframe() {
   };
 
   function formatCardDate(dateString) {
-    const [year, month, day] = dateString.split("/");
-    const date = new Date(year, month - 1, day);
+    if (!dateString) {
+      return null;
+    }
+    const date = new Date(dateString);
 
     const options = { year: "numeric", month: "long", day: "numeric" };
     return date.toLocaleDateString(undefined, options);
@@ -198,12 +128,21 @@ function Iframe() {
       }
     };
   }, [filteredData]);
-  const convertTo12HourFormat = (time) => {
-    const [hour, minute] = time.split(":");
-    const hourIn24HourFormat = parseInt(hour, 10);
-    const hourIn12HourFormat = ((hourIn24HourFormat + 11) % 12) + 1;
-    const period = hourIn24HourFormat >= 12 ? "PM" : "AM";
-    return `${hourIn12HourFormat}:${minute} ${period}`;
+
+  const convertTo12HourFormat = (timeString) => {
+    const date = new Date(timeString);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours >= 12 ? "PM" : "AM";
+
+    if (hours > 12) {
+      hours -= 12;
+    } else if (hours === 0) {
+      hours = 12;
+    }
+
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+    return `${hours}:${formattedMinutes} ${period}`;
   };
 
   return (
@@ -258,9 +197,15 @@ function Iframe() {
         >
           <ArrowLeftIcon />
         </IconButton>
-        <Box sx={{ minHeight: "378px", height: "100%" }}>
+        <Box sx={{ minHeight: "378px", display: "flex" }}>
           {data ? (
-            <div style={{ height: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                overflow: "auto", // Add this line
+              }}
+            >
               <div>
                 <Button
                   sx={{
@@ -293,13 +238,14 @@ function Iframe() {
                 ref={scrollContainerRef}
                 sx={{
                   display: "flex",
-                  overflowX: "auto", // Ensure this is set to 'scroll' or 'auto'
+                  overflowX: "auto",
                   p: 1,
                   whiteSpace: "nowrap",
                   scrollbarWidth: "none",
                   "&::-webkit-scrollbar": {
                     display: "none",
                   },
+                  flexGrow: 1, // This will make the Box take up the remaining space
                 }}
               >
                 {filteredData &&
@@ -319,6 +265,7 @@ function Iframe() {
                           overflow: "auto",
                         }}
                       >
+                        {/*  Add Event Image here */}
                         <div
                           style={{
                             width: "100%",
@@ -327,7 +274,11 @@ function Iframe() {
                           }}
                         >
                           <img
-                            src={item.image || `/images/${item.name}.jpeg`}
+                            src={
+                              item.landscapeImage
+                                ? item.landscapeImage.url
+                                : `/images/${item.name}.jpeg`
+                            }
                             alt={item.title}
                             style={{
                               width: "100%",
@@ -352,6 +303,7 @@ function Iframe() {
                         >
                           {item.title}
                         </Typography>
+                        {/*  Add Event date here */}
                         <Box
                           sx={{
                             display: "flex",
@@ -363,10 +315,10 @@ function Iframe() {
                         >
                           <EventIcon sx={{ mr: 1 }} />
                           <Typography variant="body1">
-                            {formatCardDate(item.date)}
+                            {formatCardDate(item.startDate)}
                           </Typography>
                         </Box>
-
+                        {/*  Add stadium icon and venue here */}
                         <Box
                           sx={{
                             display: "flex",
@@ -419,13 +371,64 @@ function Iframe() {
             <Box
               sx={{
                 display: "flex",
-                height: "100%",
                 width: "100%",
                 alignItems: "center",
                 justifyContent: "center",
+                flexDirection: "row",
               }}
             >
-              <CircularProgress />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+              >
+                <Skeleton
+                  sx={{ width: "90%", height: "300px", marginBottom: "-50px" }}
+                />
+                <Skeleton
+                  sx={{ width: "90%", height: "150px" }}
+                  animation="wave"
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+              >
+                <Skeleton
+                  sx={{ width: "90%", height: "300px", marginBottom: "-50px" }}
+                />
+                <Skeleton
+                  sx={{ width: "90%", height: "150px" }}
+                  animation="wave"
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
+              >
+                <Skeleton
+                  sx={{ width: "90%", height: "300px", marginBottom: "-50px" }}
+                />
+                <Skeleton
+                  sx={{ width: "90%", height: "150px" }}
+                  animation="wave"
+                />
+              </Box>
             </Box>
           )}
         </Box>
