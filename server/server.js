@@ -41,11 +41,11 @@ app.get("/api/eventdata", async (req, res) => {
       url: "https://cms-service.onrewind.tv/stadium-mobile/kentico/events?limit=30",
       headers: { "x-account-key": "ryCSDIO96" },
     },
-    {
-      name: "Commbank",
-      url: "https://cms-service.onrewind.tv/stadium-mobile/kentico/events?limit=30",
-      headers: { "x-account-key": "B13TwU_cT" },
-    },
+    // {
+    //   name: "Commbank",
+    //   url: "https://cms-service.onrewind.tv/stadium-mobile/kentico/events?limit=30",
+    //   headers: { "x-account-key": "B13TwU_cT" },
+    // },
     {
       name: "SFS",
       url: "https://cms-service.onrewind.tv/stadium-mobile/kentico/events?limit=30",
