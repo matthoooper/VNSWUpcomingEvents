@@ -49,6 +49,7 @@ function Iframe() {
             timings: null, // Add timings data here if available
             title: subItem.title,
             landscapeImage: subItem.landscapeImage,
+            shareUrl: subItem.shareUrl,
           }))
         )
       : [];
@@ -252,10 +253,12 @@ function Iframe() {
                   filteredData.map((item, index) => (
                     <Card
                       key={index}
+                      onClick={() => window.open(`${item.shareUrl}`, "_blank")}
                       sx={{
                         backgroundColor: "#f7f7f7",
                         flex: "0 0 auto",
                         mr: 1,
+                        cursor: "pointer",
                       }}
                     >
                       <CardContent
