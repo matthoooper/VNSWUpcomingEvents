@@ -32,23 +32,25 @@
 }
 
 .venue-type-SCG {
-  background-color: #587e5e; /* Replace with the color for venue type 1 */
+  background-color: #215a41; /* Replace with the color for venue type 1 */
+  color: white;
 }
 
 .venue-type-SFS {
-  background-color: #00ccff; /* Replace with the color for venue type 1 */
+  background-color: #003781; /* Replace with the color for venue type 1 */
+  color: white;
 }
 
 .venue-type-Accor {
-  background-color: #67459e66; /* Replace with the color for venue type 1 */
+  background-color: #b88d5b; /* Replace with the color for venue type 1 */
 }
 
 .venue-type-WSEC {
-  background-color: #2b1f7c66; /* Replace with the color for venue type 1 */
+  background-color: #f5c438; /* Replace with the color for venue type 1 */
 }
 
 .venue-type-Commbank {
-  background-color: #c5bc3f66; /* Replace with the color for venue type 1 */
+  background-color: #ffcc00; /* Replace with the color for venue type 1 */
 }
 
 .venue-type-NEC {
@@ -56,7 +58,8 @@
 }
 
 .venue-type-MJS {
-  background-color: #9e4d9066; /* Replace with the color for venue type 1 */
+  background-color: #080f25; /* Replace with the color for venue type 1 */
+  color: white;
 }
 
 @media print {
