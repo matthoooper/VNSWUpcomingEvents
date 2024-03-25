@@ -30,3 +30,38 @@
     transform: rotate(360deg);
   }
 }
+
+.venue-type-SCG {
+  background-color: #587e5e; /* Replace with the color for venue type 1 */
+}
+
+.venue-type-SFS {
+  background-color: #00ccff; /* Replace with the color for venue type 1 */
+}
+
+.venue-type-Accor {
+  background-color: #67459e66; /* Replace with the color for venue type 1 */
+}
+
+.venue-type-WSEC {
+  background-color: #2b1f7c66; /* Replace with the color for venue type 1 */
+}
+
+.venue-type-Commbank {
+  background-color: #c5bc3f66; /* Replace with the color for venue type 1 */
+}
+
+.venue-type-NEC {
+  background-color: #30723c66; /* Replace with the color for venue type 1 */
+}
+
+.venue-type-MJS {
+  background-color: #9e4d9066; /* Replace with the color for venue type 1 */
+}
+
+@media print {
+  .MuiDataGrid-root {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+}
