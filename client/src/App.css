@@ -62,9 +62,16 @@
   color: white;
 }
 
+.print-friendly-datagrid {
+  display: none;
+}
+
 @media print {
+  .print-friendly-datagrid {
+    display: block;
+  }
+
   .MuiDataGrid-root {
-    -webkit-print-color-adjust: exact;
-    color-adjust: exact;
+    display: none;
   }
 }

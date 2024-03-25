@@ -4,7 +4,36 @@ import { DataGridPremium, GridToolbar } from "@mui/x-data-grid-premium";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-function Iframe() {
+function PrintFriendlyDataGrid({ rows, columns }) {
+  if (!rows || !columns) {
+    return null;
+  }
+
+  return (
+    <div className="print-friendly-datagrid">
+      <table>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column.field}>{column.headerName}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              {columns.map((column) => (
+                <td key={column.field}>{row[column.field]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function EventCalendar() {
   const [data, setData] = useState(null);
   const [filteredData, setFilteredData] = useState(null);
   const [selectedName, setSelectedName] = useState(null);
@@ -93,8 +122,9 @@ function Iframe() {
           />
         </Box>
       )}
+      <PrintFriendlyDataGrid rows={filteredData} columns={columns} />
     </Container>
   );
 }
 
-export default Iframe;
+export default EventCalendar;
