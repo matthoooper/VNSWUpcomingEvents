@@ -13,7 +13,7 @@ app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self'; object-src 'none';"
+    "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self';"
   );
   res.setHeader("X-Content-Type-Options", "nosniff");
   next();
