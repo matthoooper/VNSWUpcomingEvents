@@ -4,8 +4,18 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 
+// Middleware to set security headers
 app.use((req, res, next) => {
-  res.removeHeader("X-Frame-Options");
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains"
+  );
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self'; object-src 'none';"
+  );
+  res.setHeader("X-Content-Type-Options", "nosniff");
   next();
 });
 
@@ -17,7 +27,6 @@ async function fetchJSON({ url, headers = {}, name }) {
 function normalizeData({ name, data }) {
   let items = data.items ? data.items : data;
 
-  // If the name is 'Commbank' or 'Accor', sort the items by startDate
   if (name === "Commbank" || name === "Accor") {
     items = items.sort((a, b) => {
       const dateA = new Date(a.startDate);
@@ -28,6 +37,7 @@ function normalizeData({ name, data }) {
 
   return { name, items };
 }
+
 async function fetchMultipleJSONs(jsonUrls) {
   const promises = jsonUrls.map(fetchJSON);
   const results = await Promise.all(promises);
