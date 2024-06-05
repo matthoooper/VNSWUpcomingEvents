@@ -10,10 +10,7 @@ app.use((req, res, next) => {
     "Strict-Transport-Security",
     "max-age=31536000; includeSubDomains"
   );
-  res.setHeader(
-    "Content-Security-Policy",
-    "frame-ancestors 'self' https://scgtrust.sharepoint.com/"
-  );
+
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; img-src 'self' data: https://assets-eu-01.kc-usercontent.com; script-src 'self'; style-src 'self' 'unsafe-inline';"
