@@ -25,7 +25,7 @@ function Iframe() {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (retryCount = 3) => {
       try {
         const response = await axios.get("/api/eventdata");
         setData(response.data);
@@ -33,6 +33,11 @@ function Iframe() {
         setFilteredData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
+        if (error.response && error.response.status === 500 && retryCount > 0) {
+          console.log(`Retrying... attempts left: ${retryCount - 1}`);
+          await new Promise((r) => setTimeout(r, 2000)); // wait for 2 seconds before retrying
+          return fetchData(retryCount - 1);
+        }
       }
     };
 
